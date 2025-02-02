@@ -1,0 +1,14 @@
+[Unit]
+Description=brog bootc management tool
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/usr/bin/brog
+TimeoutStartSec=0
+Environment=ENDPOINT=<change>
+Environment=SCHEDULE="every 5 seconds"
+
+[Install]
+WantedBy=default.target
