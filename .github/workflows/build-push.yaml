@@ -14,6 +14,7 @@ jobs:
     env:
       IMAGE_NAME: <change>
       REGISTRY: <change>
+      DEPLOYMENT_REPO: <change>
     permissions:
       contents: read
       packages: write
@@ -53,3 +54,24 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
+      - name: Checkout Target Repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{env.DEPLOYMENT_REPO}}
+          path: deployment
+          token: ${{ secrets.GITHUB_TOKEN }} 
+  
+      - name: Update Image Version in the related HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+            valueFile: 'config.yaml'
+            propertyPath: 'clientConfig.image'
+            value: ${{ env.REGISTRY }}/${{ steps.build-image.outputs.image }}:${{ github.sha }}
+            repository: ${{env.DEPLOYMENT_REPO}}
+
+            branch: deployment/${{ github.sha }}
+            targetBranch: main
+            createPR: true
+            message: 'Update Image Version to ${{ env.REGISTRY }}/${{ steps.build-image.outputs.image }}:${{ github.sha }}'
+            token: ${{ secrets.GITHUB_TOKEN }}
+            workDir: deployment

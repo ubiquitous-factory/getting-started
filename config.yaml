@@ -1,0 +1,2 @@
+clientConfig:
+  image: ghcr.io/ubiquitous-factory/open-coras:latest
